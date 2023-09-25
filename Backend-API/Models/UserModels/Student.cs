@@ -2,9 +2,9 @@
 {
     public class Student : ApplicationUser
     {
-        public Faculty Faculty { get; set; }
-        public Direction Direction { get; set; }
-        public Group Group { get; set; }
+        public string FacultyID { get; set; }
+        public string DirectionID { get; set; }
+        public string GroupID { get; set; }
         public int Grade { get; set; }  
 
     }

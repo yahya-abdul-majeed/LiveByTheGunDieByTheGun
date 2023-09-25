@@ -3,7 +3,7 @@ using Backend_API.Models.UserModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Backend_API.Services
+namespace Backend_API.ServiceRegistrations
 {
     public static class PersistenceServiceRegistration
     {

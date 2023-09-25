@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
-using Backend_API.Services;
+using Backend_API.ServiceRegistrations;
+
 [assembly: ApiController]
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddCustomServices();
 builder.Services.AddRepositoryServices();
 builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddControllers();

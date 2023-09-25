@@ -1,10 +1,11 @@
 ﻿using Backend_API.Models.DTO;
+using Backend_API.Models.Responses;
 
 namespace Backend_API.Repositories.RepositoryInterfaces
 {
     public interface IAuthenticationRepository
     {
-        Task<bool> Register(RegistrationDTO dto);
-        Task<bool> Login(LoginDTO dto);
+        Task<RegistrationResponse> Register(RegistrationDTO dto);
+        Task<JwtResponse> Login(LoginDTO dto);
     }
 }
