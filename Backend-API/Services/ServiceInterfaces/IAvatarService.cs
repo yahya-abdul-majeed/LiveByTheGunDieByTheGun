@@ -4,6 +4,7 @@ namespace Backend_API.Services.ServiceInterfaces
 {
     public interface IAvatarService
     {
-        Task<string> GetAvatarForUser(Guid id);
+        Task<string> GetDefaultAvatar(Guid userId);
+        Task<string> GetCustomAvatar();
     }
 }

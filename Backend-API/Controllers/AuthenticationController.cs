@@ -1,4 +1,5 @@
-﻿using Backend_API.Models.DTO;
+﻿using Backend_API.ModelBinders;
+using Backend_API.Models.DTO;
 using Backend_API.Models.Responses;
 using Backend_API.Repositories.RepositoryInterfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -14,18 +15,36 @@ namespace Backend_API.Controllers
         {
             _authenticationRepository = authenticationRepository;
         }
+
+        /// <summary>
+        /// Sends a registration request to admin.
+        /// </summary>
+        ///<remarks>Caution: name must not contain space, only letters and numbers, set student only fields to null when creating teacher</remarks>
         [HttpPost]
         [Route("Register")]
-        public async Task<ActionResult<APIResponse>> Register(RegistrationDTO dto)
+        public async Task<ActionResult<APIResponse>> Register([FromBody]RegistrationDTO dto)
         {
             var result = await _authenticationRepository.Register(dto);
 
-            return new APIResponse
+            if (result.IsSuccess)
             {
-                IsSuccess = result.IsSuccess,
-                ErrorMessages = result.ErrorMessages,
-                StatusCode = result.IsSuccess ? HttpStatusCode.OK : HttpStatusCode.InternalServerError
-            };
+                return Ok(new APIResponse
+                {
+                    IsSuccess = result.IsSuccess,
+                    ErrorMessages = result.ErrorMessages,
+                    StatusCode = result.IsSuccess ? HttpStatusCode.OK : HttpStatusCode.InternalServerError
+                });
+            }
+            else
+            {
+                return BadRequest(new APIResponse
+                {
+                    IsSuccess = result.IsSuccess,
+                    ErrorMessages = result.ErrorMessages,
+                    StatusCode = result.IsSuccess ? HttpStatusCode.OK : HttpStatusCode.InternalServerError
+                });
+            }
+            
         } 
 
         [HttpPost]

@@ -2,8 +2,10 @@
 using Backend_API.Models.DTO;
 using Backend_API.Models.Responses;
 using Backend_API.Models.UserModels;
+using Backend_API.Options;
 using Backend_API.Repositories.RepositoryInterfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
@@ -17,15 +19,18 @@ namespace Backend_API.Repositories
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
+        private readonly JWTOptions _options;
 
         public AuthenticationRepository(
             UserManager<ApplicationUser> userManager,
             ApplicationDbContext context,
+            IOptionsSnapshot<JWTOptions> options,
             IConfiguration configuration)
         {
             _userManager = userManager;
             _context = context;
             _configuration = configuration;
+            _options = options.Value;
         }
         public async Task<JwtResponse> Login(LoginDTO dto)
         {
@@ -104,7 +109,8 @@ namespace Backend_API.Repositories
         {
             try
             {
-                var userExists = await _userManager.FindByEmailAsync(dto.Email); if(userExists != null)
+                var userExists = await _userManager.FindByEmailAsync(dto.Email); 
+                if(userExists != null)
                 {
                     return new RegistrationResponse {
                         IsSuccess = false,
@@ -150,11 +156,11 @@ namespace Backend_API.Repositories
 
         private JwtSecurityToken GetToken(List<Claim> authClaims)
         {
-            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Secret));
 
             var token = new JwtSecurityToken(
-                issuer: _configuration["JWT:ValidIssuer"],
-                audience: _configuration["JWT:ValidAudience"],
+                issuer: _options.ValidIssuer,
+                audience: _options.ValidAudience,
                 expires: DateTime.Now.AddHours(3),
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)

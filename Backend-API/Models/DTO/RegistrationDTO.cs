@@ -1,7 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Backend_API.ModelBinders;
+using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Backend_API.Models.DTO
 {
+    //[ModelBinder(typeof(RegistrationModelBinder))]
     public class RegistrationDTO
     {
         [Required]
@@ -13,10 +17,10 @@ namespace Backend_API.Models.DTO
         [Required]
         public DateOnly BirthDate { get;set; }
         [Required]
-        public bool isStudent { get; set; } 
-        public int? Grade { get; set; } 
-        public string FacultyID { get; set; }
-        public string DirectionID { get; set; }
-        public string GroupID { get; set; } 
+        public bool isStudent { get; set; }
+        public int? Grade { get; set; } = null;
+        public string? FacultyID { get; set; } = null;
+        public string? DirectionID { get; set; } = null;
+        public string? GroupID { get; set; } = null;
     }
 }

@@ -1,13 +1,14 @@
 ﻿using Backend_API.Models.Responses;
 using Backend_API.Services.ServiceInterfaces;
+using Hangfire;
 
 namespace Backend_API.Services
 {
     public class EmailService : IEmailService
     {
-        public Task<EmailResponse> SendEmailWithPassword(string email, string password)
+        [AutomaticRetry(Attempts = 15)]
+        public void SendEmailWithPassword(string email, string password)
         {
-            throw new NotImplementedException();
         }
     }
 }

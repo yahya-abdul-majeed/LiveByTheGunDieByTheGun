@@ -2,6 +2,7 @@
 using Backend_API.Models.UserModels;
 using Backend_API.Repositories.RepositoryInterfaces;
 using Backend_API.Services.ServiceInterfaces;
+using Hangfire;
 using Microsoft.AspNetCore.Identity;
 
 namespace Backend_API.Repositories
@@ -34,7 +35,7 @@ namespace Backend_API.Repositories
                         Email = jailee.Email,
                         PhoneNumber = jailee.Phone,
                         BirthDate = jailee.BirthDate,
-                        Avatar = await _avatarService.GetAvatarForUser(jailee.Id),
+                        Avatar = await _avatarService.GetDefaultAvatar(jailee.Id),
                         FacultyID = jailee.FacultyID,
                         DirectionID = jailee.DirectionID,
                         GroupID = jailee.GroupID,
@@ -49,19 +50,23 @@ namespace Backend_API.Repositories
                         Email = jailee.Email,
                         PhoneNumber = jailee.Phone,
                         BirthDate = jailee.BirthDate,
-                        Avatar = await _avatarService.GetAvatarForUser(jailee.Id),
+                        Avatar = await _avatarService.GetDefaultAvatar(jailee.Id),
                     };
                 }
 
-                var generatedPassword = GenerateRandomPassword();
+                //create roles before assiging users to them
+                //await _userManager.AddToRoleAsync(user, UserRoles.User);
+
+                //var generatedPassword = GenerateRandomPassword();
+                var generatedPassword = "Admin123_";
                 var result = await _userManager.CreateAsync(user, generatedPassword);
                 if(result.Succeeded)
                 {
-                    var emailResponse = await _emailService.SendEmailWithPassword(jailee.Email, generatedPassword);
+                    var jobId = BackgroundJob.Enqueue(() => _emailService.SendEmailWithPassword(jailee.Email,generatedPassword));
                     return new ReleaseJaileeResponse
                     {
-                        emailSent = emailResponse.IsSuccess,
-                        ErrorMessages = emailResponse.ErrorMessages
+                        emailSent = true,
+                        EmailJobId = jobId,
                     };
                 }
                 else

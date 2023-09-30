@@ -2,6 +2,8 @@
 using Backend_API.Models.UserModels;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
+using System.Text.Json;
 
 namespace Backend_API.Data
 {
@@ -10,7 +12,7 @@ namespace Backend_API.Data
         public DbSet<Student> Students { get; set; }
         public DbSet<Teacher> Teachers { get; set; }
         public DbSet<ApplicationUser> ApplicationUser { get; set; }
-        public DbSet<JailedUser> JailedUser { get; set; }   
+        public DbSet<JailedUser> JailedUsers { get; set; }   
         public DbSet<Faculty> Faculties { get; set; }
         public DbSet<Direction> Directions { get; set; }
         public DbSet<Discipline> Disciplines { get; set; }
@@ -34,15 +36,25 @@ namespace Backend_API.Data
             builder.Entity<Group>(entity => { entity.ToTable("Groups"); });
             builder.Entity<Schedule>(entity => { entity.ToTable("Schedules"); });
 
-            //builder.Entity<Teacher>().HasData(new Teacher
-            //{
-            //    Email = "yahya.zf2@gmail.com",
-            //    Avatar = "somethings random",
-            //    UserName ="yoyo",
-            //    BirthDate = DateOnly.FromDateTime(DateTime.Now),
-            //    PhoneNumber = "1234567890",
+            builder.Entity<Discipline>()
+                .Property(e => e.Literature)
+                .HasConversion(
+                    v=>string.Join(",", v),
+                    v=>v.Split(",",StringSplitOptions.RemoveEmptyEntries)
+                );
 
-            //});
+            builder.Entity<ApplicationUser>()
+                .Property(e => e.BirthDate)
+                .HasConversion(
+                v=>v.ToDateTime(TimeOnly.MinValue),
+                v=>DateOnly.FromDateTime(v)
+                );
+            builder.Entity<JailedUser>()
+                .Property(e => e.BirthDate)
+                .HasConversion(
+                v=>v.ToDateTime(TimeOnly.MinValue),
+                v=>DateOnly.FromDateTime(v)
+                );
         }
     }
 }

@@ -8,9 +8,9 @@
         public string Phone { get; set; }   
         public DateOnly BirthDate { get; set; }
         public string Avatar { get; set; } = string.Empty;
-        public string FacultyID { get; set; }
-        public string DirectionID { get; set; }
-        public string GroupID { get; set; }
-        public int? Grade { get; set; }  
+        public string? FacultyID { get; set; } = null;
+        public string? DirectionID { get; set; } = null;
+        public string? GroupID { get; set; } = null;
+        public int? Grade { get; set; } = null;  
     }
 }
