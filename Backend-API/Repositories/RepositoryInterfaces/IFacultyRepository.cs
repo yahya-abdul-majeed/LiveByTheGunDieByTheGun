@@ -4,10 +4,10 @@ namespace Backend_API.Repositories.RepositoryInterfaces
 {
     public interface IFacultyRepository
     {
-        Task<Faculty> CreateFacultyAsync(string facultyName); 
-        Task<Faculty> UpdateFacultybyIdAsync(Guid id, Faculty faculty);
-        Task<bool> DeleteFacultyByIdAsync(Guid id);
-        Task<Faculty> GetFacultyByIdAsync(Guid id);
+        Task<int> CreateFacultyAsync(string facultyName); 
+        Task<int> UpdateFacultybyIdAsync(Guid id, string facultyName);
+        Task<int> DeleteFacultyByIdAsync(Guid id);
+        Faculty GetFacultyById(Guid id);
         Task<IEnumerable<Faculty>> GetAllFacultiesAsync();
         
     }

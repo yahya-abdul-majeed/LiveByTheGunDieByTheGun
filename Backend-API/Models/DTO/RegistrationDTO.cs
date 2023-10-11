@@ -1,11 +1,9 @@
-﻿using Backend_API.ModelBinders;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace Backend_API.Models.DTO
 {
-    //[ModelBinder(typeof(RegistrationModelBinder))]
     public class RegistrationDTO
     {
         [Required]

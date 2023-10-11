@@ -1,33 +1,67 @@
 ﻿using Backend_API.Models;
 using Backend_API.Repositories.RepositoryInterfaces;
+using Dapper;
+using Microsoft.Data.SqlClient;
 
 namespace Backend_API.Repositories
 {
     public class DirectionRepository : IDirectionRepository
     {
-        public Task<Direction> CreateDirectionAsync(Direction direction)
+        private readonly string _connectionString;
+
+        public DirectionRepository(IConfiguration config)
         {
-            throw new NotImplementedException();
+            _connectionString = config.GetConnectionString("SQLConnection");
+        }
+        public async Task<int> CreateDirectionAsync(Direction direction)
+        {
+            using(var connection = new SqlConnection(_connectionString))
+            {
+                var (name, facultyid) = direction;
+                var sql = @"INSERT INTO management.direction (faculty_id,direction_name)
+                            VALUES(@facultyid,@name)";
+                return await connection.ExecuteAsync(sql, new { name, facultyid }).ConfigureAwait(false);
+            }
         }
 
-        public Task<bool> DeleteDirectionAsync(Guid id)
+        public async Task<int> DeleteDirectionAsync(Guid id)
         {
-            throw new NotImplementedException();
+            using(var connection = new SqlConnection(_connectionString))
+            {
+                var sql = @"DELETE FROM management.direction WHERE direction_id = @id";
+                return await connection.ExecuteAsync(sql, new { id }).ConfigureAwait(false);
+            }
         }
 
-        public Task<IEnumerable<Direction>> GetAllDirectionsAsync()
+        public async Task<IEnumerable<Direction>> GetAllDirectionsAsync()
         {
-            throw new NotImplementedException();
+            using(var connection = new SqlConnection(_connectionString))
+            {
+                var sql = @"SELECT * FROM management.direction";
+                return await connection.QueryAsync<Direction>(sql).ConfigureAwait(false);
+            }
         }
 
-        public Task<Direction> GetDirectionByIdAsync(Guid id)
+        public Direction GetDirectionById(Guid id)
         {
-            throw new NotImplementedException();
+            using(var connection = new SqlConnection(_connectionString))
+            {
+                var sql = @"SELECT * FROM management.direction WHERE direction_id = @id";
+                return connection.QuerySingleOrDefault<Direction>(sql,new {id});
+            }
         }
 
-        public Task<Direction> UpdateDirectionAsync(Guid id, Direction direction)
+        public async Task<int> UpdateDirectionAsync(Guid id, Direction direction)
         {
-            throw new NotImplementedException();
+            using(var connection = new SqlConnection(_connectionString))
+            {
+                var (name,facultyid) = direction; // could cause errors due to naming of faculty id 
+                var sql = @"UPDATE management.direction SET
+                            direction_name = @name,
+                            faculty_id = @facultyid
+                            WHERE direction_id = @id";
+                return await connection.ExecuteAsync(sql,new {name, facultyid, id}).ConfigureAwait(false);
+            }
         }
     }
 }

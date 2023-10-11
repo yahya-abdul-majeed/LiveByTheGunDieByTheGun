@@ -31,7 +31,6 @@ builder.Services.AddControllers()
 builder.Services.AddCustomServices();
 builder.Services.AddRepositoryServices();
 builder.Services.AddJWTSupport(builder.Configuration);
-builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddHangfireSupport(builder.Configuration);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -73,10 +72,10 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
 
-using (var scope = app.Services.CreateScope())
-{
-    Startup.CreateRolesAndPowerUser(scope.ServiceProvider).Wait();
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    Startup.CreateRolesAndPowerUser(scope.ServiceProvider).Wait();
+//}
 
 
 // Configure the HTTP request pipeline.

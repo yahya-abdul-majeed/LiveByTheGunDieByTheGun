@@ -1,17 +1,35 @@
-﻿using Backend_API.Models.UserModels;
-
-namespace Backend_API.Models
+﻿namespace Backend_API.Models
 {
     public class Discipline
     {
-        public Guid Id { get; set; }
-        public int Year { get; set; }
-        public string Title { get; set; } = string.Empty;  
-        public string Description { get; set; }
-        public IEnumerable<string> Literature { get; set; }
-        public IEnumerable<Teacher> Teachers { get; set; }
-        public IEnumerable<Group> Groups { get; set; }  
-        public Schedule Schedule { get; set; }    
-
+        public void Deconstruct(
+            out string name,
+            out string _description,
+            out string _literature,
+            out Int16 _year,
+            out Guid _grade_id,
+            out bool _is_online,
+            out string? _building,
+            out string? _room
+            )
+        {
+             name = discipline_name;
+            _description = description;
+            _literature = literature;
+            _year = year;
+            _grade_id = grade_id;
+            _is_online = is_online;
+            _building = building;
+            _room = room;
+        }
+        public Guid discipline_id { get; set; } 
+        public string discipline_name { get; set; }
+        public string description { get; set; }
+        public string literature { get;set; }
+        public Int16 year { get; set; }
+        public Guid grade_id { get; set; }  
+        public bool is_online { get; set; }
+        public string? building { get; set; }    
+        public string? room { get; set; }
     }
 }

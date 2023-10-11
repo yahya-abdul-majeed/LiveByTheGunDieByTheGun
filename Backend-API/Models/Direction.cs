@@ -2,9 +2,13 @@
 {
     public class Direction
     {
-        public Guid id { get; set; }
-        public string Name { get; set; }
-        public IEnumerable<Group> groups { get; set; }
-        public Faculty Faculty { get; set; }
+        public void Deconstruct(out string name, out Guid facultyid)
+        {
+            name = direction_name;
+            facultyid = faculty_id;
+        }
+        public Guid direction_id { get; set; }
+        public Guid faculty_id { get; set; }    
+        public string direction_name { get; set;}
     }
 }

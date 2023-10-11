@@ -1,5 +1,5 @@
-﻿using Backend_API.Models.Responses;
-using Backend_API.Models.UserModels;
+﻿using Backend_API.Models;
+using Backend_API.Models.Responses;
 
 namespace Backend_API.Repositories.RepositoryInterfaces
 {

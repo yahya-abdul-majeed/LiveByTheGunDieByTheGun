@@ -4,11 +4,11 @@ namespace Backend_API.Repositories.RepositoryInterfaces
 {
     public interface IDisciplineRepository
     {
-        Task<Discipline> CreateDisciplineAsync(Discipline discipline);
-        Task<Discipline> UpdateDisciplineAsync(Guid id, Discipline discipline);
-        Task<bool> DeleteDisciplineAsync(Guid id);
-        Task<Discipline> GetDisciplineByIdAsync(Guid id);
-        Task<IEnumerable<Discipline>> GetAllDisciplineAsync();
+        Task<int> CreateDisciplineAsync(Discipline discipline);
+        Task<int> UpdateDisciplineAsync(Guid id, Discipline discipline);
+        Task<int> DeleteDisciplineAsync(Guid id);
+        Discipline GetDisciplineById(Guid id);
+        Task<IEnumerable<Discipline>> GetAllDisciplinesAsync();
 
     }
 }

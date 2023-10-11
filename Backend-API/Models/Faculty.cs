@@ -2,8 +2,7 @@
 {
     public class Faculty
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
-        public string Name { get; set; }
-        public IEnumerable<Direction> Directions { get; set; }  = Enumerable.Empty<Direction>();
+        public Guid faculty_id { get; set; }
+        public string faculty_name { get; set;}
     }
 }

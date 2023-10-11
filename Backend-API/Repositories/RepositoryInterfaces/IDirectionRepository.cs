@@ -4,10 +4,10 @@ namespace Backend_API.Repositories.RepositoryInterfaces
 {
     public interface IDirectionRepository
     {
-        Task<Direction> CreateDirectionAsync(Direction direction);
-        Task<Direction> UpdateDirectionAsync(Guid id,Direction direction);
-        Task<bool> DeleteDirectionAsync(Guid id);
-        Task<Direction> GetDirectionByIdAsync(Guid id);
+        Task<int> CreateDirectionAsync(Direction direction);
+        Task<int> UpdateDirectionAsync(Guid id,Direction direction);
+        Task<int> DeleteDirectionAsync(Guid id);
+        Direction GetDirectionById(Guid id);
         Task<IEnumerable<Direction>> GetAllDirectionsAsync();
     }
 }
