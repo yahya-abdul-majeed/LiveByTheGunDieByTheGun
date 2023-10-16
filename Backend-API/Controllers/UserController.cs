@@ -18,9 +18,9 @@ namespace Backend_API.Controllers
 
         [HttpPost]
         [Route("CreateTeacher")]
-        public IActionResult CreateTeacher(JailedUser jailee)
+        public IActionResult CreateTeacher(JailedUser jailee, string password)
         {
-            var userid = _userRepository.CreateTeacherUser(jailee);
+            var userid = _userRepository.CreateTeacherUser(jailee, password);
             return Ok(new APIResponse
             {
                 IsSuccess = true,
@@ -34,9 +34,9 @@ namespace Backend_API.Controllers
 
         [HttpPost]
         [Route("CreateStudent")]
-        public IActionResult CreateStudent(JailedUser jailee)
+        public IActionResult CreateStudent(JailedUser jailee, string password)
         {
-            var userid = _userRepository.CreateStudentUser(jailee);
+            var userid = _userRepository.CreateStudentUser(jailee, password);
             return Ok(new APIResponse
             {
                 IsSuccess = true,

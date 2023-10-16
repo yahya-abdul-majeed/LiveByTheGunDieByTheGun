@@ -38,13 +38,14 @@ namespace Backend_API
         public static IServiceCollection AddRepositoryServices(this IServiceCollection services)
         {
             //services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
-            //services.AddScoped<IAdminRepository, AdminRepository>();
+            services.AddScoped<IAdminRepository, AdminRepository>();
             services.AddScoped<IGroupRepository, GroupRepository>();
             services.AddScoped<IDisciplineRepository, DisciplineRepository>();
             services.AddScoped<IDirectionRepository, DirectionRepository>();
             services.AddScoped<IProfileRepository, ProfileRepository>();
             services.AddScoped<IFacultyRepository, FacultyRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUtilityService, UtilityService>();
 
             return services;
 

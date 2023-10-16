@@ -1,172 +1,202 @@
-﻿//using Backend_API.Data;
-//using Backend_API.Models.DTO;
-//using Backend_API.Models.Responses;
-//using Backend_API.Models.UserModels;
-//using Backend_API.Options;
-//using Backend_API.Repositories.RepositoryInterfaces;
-//using Microsoft.AspNetCore.Identity;
-//using Microsoft.Extensions.Options;
-//using Microsoft.IdentityModel.Tokens;
-//using System.Diagnostics;
-//using System.IdentityModel.Tokens.Jwt;
-//using System.Security.Claims;
-//using System.Text;
+﻿using Backend_API.Models;
+using Backend_API.Models.DTO;
+using Backend_API.Models.Responses;
+using Backend_API.Options;
+using Backend_API.Repositories.RepositoryInterfaces;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
-//namespace Backend_API.Repositories
-//{
-//    public class AuthenticationRepository : IAuthenticationRepository
-//    {
-//        private readonly UserManager<ApplicationUser> _userManager;
-//        private readonly ApplicationDbContext _context;
-//        private readonly IConfiguration _configuration;
-//        private readonly JWTOptions _options;
+namespace Backend_API.Repositories
+{
+    public class AuthenticationRepository : IAuthenticationRepository
+    {
+        private readonly IConfiguration _configuration;
+        private readonly JWTOptions _options;
+        private readonly string _connectionString;
 
-//        public AuthenticationRepository(
-//            UserManager<ApplicationUser> userManager,
-//            ApplicationDbContext context,
-//            IOptionsSnapshot<JWTOptions> options,
-//            IConfiguration configuration)
-//        {
-//            _userManager = userManager;
-//            _context = context;
-//            _configuration = configuration;
-//            _options = options.Value;
-//        }
-//        public async Task<JwtResponse> Login(LoginDTO dto)
-//        {
-//            try
-//            {
+        public AuthenticationRepository(
+            IOptionsSnapshot<JWTOptions> options,
+            IConfiguration configuration)
+        {
+            _configuration = configuration;
+            _options = options.Value;
+            _connectionString = configuration.GetConnectionString("SQLConnection");
+        }
+        public async Task<JwtResponse> Login(LoginDTO dto)
+        {
+            try
+            {
 
-//                var user = await _userManager.FindByEmailAsync(dto.Email);
-//                if(user == null)
-//                {
-//                    return new JwtResponse
-//                    {
-//                        IsSuccess = false,
-//                        token = string.Empty, 
-//                        ErrorMessages = new List<string>()
-//                        {
-//                            "User with this email not found"
-//                        }
-//                    };
-//                }
-//                if(await _userManager.CheckPasswordAsync(user, dto.Password))
-//                {
-//                    var userRoles = await _userManager.GetRolesAsync(user);
-//                    var authClaims = new List<Claim>
-//                    {
-//                        new Claim(ClaimTypes.Name, user.UserName),
-//                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-//                    };
+                if (!UserExists(dto.email))
+                {
+                    return new JwtResponse
+                    {
+                        IsSuccess = false,
+                        token = string.Empty,
+                        ErrorMessages = new List<string>()
+                        {
+                            "User with this email not found"
+                        }
+                    };
+                }
+                if (CheckUserPassword(dto.email,dto.password))
+                {
+                    applicationuser user = LoadUser(dto.email);
+                    IList<string> userRoles = GetUserRoles(user.user_id);
+                    var authClaims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, user.username),
+                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                    };
 
-//                    foreach(var role in userRoles)
-//                    {
-//                        authClaims.Add(new Claim(ClaimTypes.Role, role));
-//                    }
+                    foreach (var role in userRoles)
+                    {
+                        authClaims.Add(new Claim(ClaimTypes.Role, role));
+                    }
 
-//                    var token = GetToken(authClaims);
-//                    return new JwtResponse
-//                    {
-//                        IsSuccess = true,
-//                        token = new JwtSecurityTokenHandler().WriteToken(token),
-//                        expiration = token.ValidTo,
-//                        ErrorMessages = new List<string>()
-//                    };
+                    var token = GetToken(authClaims);
+                    return new JwtResponse
+                    {
+                        IsSuccess = true,
+                        token = new JwtSecurityTokenHandler().WriteToken(token),
+                        expiration = token.ValidTo,
+                        ErrorMessages = new List<string>()
+                    };
 
-//                }
-//                else
-//                {
-                    
-//                    return new JwtResponse
-//                    {
-//                        IsSuccess = false,
-//                        token = string.Empty, 
-//                        ErrorMessages = new List<string>()
-//                        {
-//                            "Password incorrect"
-//                        }
-//                    };
+                }
+                else
+                {
 
-//                }
-//            }
-//            catch(Exception ex)
-//            {
-//                return new JwtResponse
-//                {
-//                    IsSuccess = false,
-//                    token = string.Empty, 
-//                    ErrorMessages = new List<string>()
-//                    {
-//                        ex.Message,
-//                        ex.StackTrace
-//                    }
-//                };
-//            }
-//        }
+                    return new JwtResponse
+                    {
+                        IsSuccess = false,
+                        token = string.Empty,
+                        ErrorMessages = new List<string>()
+                        {
+                            "Password incorrect"
+                        }
+                    };
 
+                }
+            }
+            catch (Exception ex)
+            {
+                return new JwtResponse
+                {
+                    IsSuccess = false,
+                    token = string.Empty,
+                    ErrorMessages = new List<string>()
+                    {
+                        ex.Message,
+                        ex.StackTrace
+                    }
+                };
+            }
+        }
 
-//        public async Task<RegistrationResponse> Register(RegistrationDTO dto)
-//        {
-//            try
-//            {
-//                var userExists = await _userManager.FindByEmailAsync(dto.Email); 
-//                if(userExists != null)
-//                {
-//                    return new RegistrationResponse {
-//                        IsSuccess = false,
-//                        ErrorMessages = new List<string>()
-//                        {
-//                            "User with this email already exists"
-//                        }
-//                    };
-//                }
-//                JailedUser jailedUser = new()
-//                {
-//                    Name = dto.Name,
-//                    Email = dto.Email,
-//                    Phone = dto.Phone,
-//                    BirthDate = dto.BirthDate,
-//                    Grade = dto.Grade,
-//                    DirectionID = dto.DirectionID,
-//                    FacultyID = dto.FacultyID,
-//                    GroupID = dto.GroupID
-//                };
-                
-//                _context.Add<JailedUser>(jailedUser);
-//                await _context.SaveChangesAsync();
-//                return new RegistrationResponse{ 
-//                    IsSuccess = true,
-//                    ErrorMessages = new List<string>()
-//                };
+      
+        public async Task<RegistrationResponse> Register(RegistrationDTO dto)
+        {
+            try
+            {
+                if (UserExists(dto.email))
+                {
+                    return new RegistrationResponse
+                    {
+                        IsSuccess = false,
+                        ErrorMessages = new List<string>()
+                        {
+                            "User with this email already exists"
+                        }
+                    };
+                }
+                JailedUser jailedUser = new()
+                {
+                    username = dto.username,
+                    email = dto.email,
+                    phone= dto.phone,
+                    birthdate = dto.birthdate,
+                    is_student = dto.is_student,
+                    avatar = dto.avatar,
+                    grade_id = dto.grade_id,
+                    direction_id = dto.direction_id,
+                    faculty_id = dto.faculty_id,
+                    group_id = dto.group_id
+                };
 
-//            }
-//            catch(Exception ex)
-//            {
-//                return new RegistrationResponse
-//                {
-//                    IsSuccess = false,
-//                    ErrorMessages = new List<string>()
-//                    {
-//                        ex.Message,
-//                        ex.StackTrace
-//                    }
-//                };
-//            }
-//        }
+                var result = CreateJailedUser(jailedUser);
+                if(result > 1)
+                {
+                    return new RegistrationResponse
+                    {
+                        IsSuccess = true,
+                        ErrorMessages = new List<string>()
+                    };
+                }
 
-//        private JwtSecurityToken GetToken(List<Claim> authClaims)
-//        {
-//            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Secret));
+                return new RegistrationResponse
+                {
+                    IsSuccess = false,
+                    ErrorMessages = new List<string>()
+                    {
+                        "Failed"
+                    }
+                };
 
-//            var token = new JwtSecurityToken(
-//                issuer: _options.ValidIssuer,
-//                audience: _options.ValidAudience,
-//                expires: DateTime.Now.AddHours(3),
-//                claims: authClaims,
-//                signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
-//                );
+            }
+            catch (Exception ex)
+            {
+                return new RegistrationResponse
+                {
+                    IsSuccess = false,
+                    ErrorMessages = new List<string>()
+                    {
+                        ex.Message,
+                    }
+                };
+            }
+        }
 
-//            return token;
-//        }
-//    }
-//}
+        private bool UserExists(string email)
+        {
+            throw new NotImplementedException();
+        }
+        private IList<string> GetUserRoles(Guid user_id)
+        {
+            throw new NotImplementedException();
+        }
+
+        private applicationuser LoadUser(string email)
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool CheckUserPassword(string email, string password)
+        {
+            throw new NotImplementedException();
+        }
+
+        private int CreateJailedUser(JailedUser jailee)
+        {
+            throw new NotImplementedException();
+        }
+
+        private JwtSecurityToken GetToken(List<Claim> authClaims)
+        {
+            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Secret));
+
+            var token = new JwtSecurityToken(
+                issuer: _options.ValidIssuer,
+                audience: _options.ValidAudience,
+                expires: DateTime.Now.AddHours(3),
+                claims: authClaims,
+                signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
+                );
+
+            return token;
+        }
+    }
+}

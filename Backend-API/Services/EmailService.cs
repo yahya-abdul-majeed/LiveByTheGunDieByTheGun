@@ -6,9 +6,10 @@ namespace Backend_API.Services
 {
     public class EmailService : IEmailService
     {
-        [AutomaticRetry(Attempts = 15)]
+        //[AutomaticRetry(Attempts = 15)]
         public void SendEmailWithPassword(string email, string password)
         {
+            throw new Exception();
         }
     }
 }

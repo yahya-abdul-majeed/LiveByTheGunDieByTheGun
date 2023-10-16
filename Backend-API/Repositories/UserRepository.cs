@@ -15,12 +15,11 @@ namespace Backend_API.Repositories
             _connectionString = config.GetConnectionString("SQLConnection");
         }
 
-        public Guid CreateTeacherUser(JailedUser jailee)
+        public Guid CreateTeacherUser(JailedUser jailee, string _password)
         {
             using(var connection = new SqlConnection(_connectionString))
             {
                 var (name, _birthdate, _email, _phone, _avatar, _is_student, _faculty_id, _direction_id, _group_id, _grade_id) = jailee;
-                var _password = "random password"; //generated password
                 var sql = @"Declare @temptable TABLE (
                         user_id UNIQUEIDENTIFIER
                         )
@@ -66,12 +65,11 @@ namespace Backend_API.Repositories
             }
         }
 
-        public Guid CreateStudentUser(JailedUser jailee)
+        public Guid CreateStudentUser(JailedUser jailee, string _password)
         {
             using(var connection = new SqlConnection(_connectionString))
             {
                 var (name, _birthdate, _email, _phone, _avatar, _is_student, _faculty_id, _direction_id, _group_id, _grade_id) = jailee;
-                var _password = "random password"; //generated password
                 var sql = @"Declare @temptable TABLE (
                            id UNIQUEIDENTIFIER
                         )

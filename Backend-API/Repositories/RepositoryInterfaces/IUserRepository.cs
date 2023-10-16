@@ -8,8 +8,8 @@ namespace Backend_API.Repositories.RepositoryInterfaces
     public interface IUserRepository
     {
         JailedUser GetJailedUser(Guid id);
-        Guid CreateStudentUser(JailedUser jailee);
-        Guid CreateTeacherUser(JailedUser jailee);
+        Guid CreateStudentUser(JailedUser jailee, string _password);
+        Guid CreateTeacherUser(JailedUser jailee, string _password);
 
         Task<IEnumerable<ApplicationStudentDTO >> GetStudentsAsync();
         Task<IEnumerable<ApplicationTeacherDTO >> GetTeachersAsync();

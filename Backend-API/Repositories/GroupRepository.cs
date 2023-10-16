@@ -1,38 +1,92 @@
-﻿using Backend_API.Repositories.RepositoryInterfaces;
-using System.Text.RegularExpressions;
+﻿using Backend_API.Models;
+using Backend_API.Repositories.RepositoryInterfaces;
+using Dapper;
+using Microsoft.Data.SqlClient;
 
 namespace Backend_API.Repositories
 {
     public class GroupRepository : IGroupRepository
     {
-        public Task<Group> CreateGroupAsync(Group group)
+        private readonly string _connectionString;
+
+        public GroupRepository(IConfiguration config)
         {
-            throw new NotImplementedException();
+            _connectionString = config.GetConnectionString("SQLConnection");
+        }
+        public Guid CreateGroup(Group group)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var(_direction_id, _group_name) = group;
+                var sql = @"
+                        INSERT INTO management.student_group (direction_id, group_name)
+                        OUTPUT inserted.group_id
+                        VALUES (@_direction_id,@_group_name)
+                        ";
+                return connection.QuerySingle<Guid>(sql, new {_direction_id,_group_name});
+            }
         }
 
-        public Task<bool> DeleteGroupAsync(Guid id)
+        public async Task<int> DeleteGroupAsync(Guid id)
         {
-            throw new NotImplementedException();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var sql = @"
+                        DELETE FROM management.student_group 
+                        WHERE group_id = @id
+                        ";
+                return await connection.ExecuteAsync(sql, new {id});
+            }
         }
 
-        public Task<IEnumerable<Group>> GetAllGroupsAsync()
+        public async Task<IEnumerable<Group>> GetAllGroupsAsync()
         {
-            throw new NotImplementedException();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var sql = @"
+                        SELECT * FROM management.student_group
+                        ";
+                return await connection.QueryAsync<Group>(sql);
+            }
         }
 
-        public Task<Group> GetGroupByIdAsync(Guid id)
+        public Group GetGroupById(Guid id)
         {
-            throw new NotImplementedException();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var sql = @"
+                        SELECT * FROM management.student_group
+                        WHERE group_id = @id
+                        ";
+                return connection.QuerySingleOrDefault<Group>(sql,new {id});
+            }
         }
 
-        public Task<Group> GetGroupByNameAsync(int Name)
+        public Group GetGroupByName(string Name)
         {
-            throw new NotImplementedException();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var sql = @"
+                        SELECT * FROM management.student_group
+                        WHERE group_name = @Name  
+                        ";
+                return connection.QuerySingleOrDefault<Group>(sql,new {Name});
+            }
         }
 
-        public Task<Group> UpdateGroupAsync(Guid id, Group group)
+        public async Task<int> UpdateGroupAsync(Guid id, Group group)
         {
-            throw new NotImplementedException();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var (_direction_id, _group_name) = group;
+                var sql = @"
+                        UPDATE management.student_group SET 
+                        group_name = @_group_name,
+                        direction_id = @_direction_id
+                        WHERE group_id = @id
+                        ";
+                return await connection.ExecuteAsync(sql,new {_direction_id,_group_name,id});
+            }
         }
     }
 }
