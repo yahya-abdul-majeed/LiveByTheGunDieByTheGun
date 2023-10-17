@@ -2,8 +2,9 @@
 using Backend_API.Models.Responses;
 using Backend_API.Repositories.RepositoryInterfaces;
 using Backend_API.Services.ServiceInterfaces;
-using System.Transactions;
+using Microsoft.Data.SqlClient;
 using Hangfire;
+using System.Transactions;
 
 namespace Backend_API.Repositories
 {
@@ -31,6 +32,7 @@ namespace Backend_API.Repositories
                 Guid? id;
                 string password;
                 string jobId;
+                TransactionManager.ImplicitDistributedTransactions = true;
                 using (var transactionScope = new TransactionScope(TransactionScopeOption.Required))
                 {
                     (id, password) = CreateUserInDatabase(jailee);

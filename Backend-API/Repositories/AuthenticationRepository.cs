@@ -3,6 +3,8 @@ using Backend_API.Models.DTO;
 using Backend_API.Models.Responses;
 using Backend_API.Options;
 using Backend_API.Repositories.RepositoryInterfaces;
+using Dapper;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -13,7 +15,6 @@ namespace Backend_API.Repositories
 {
     public class AuthenticationRepository : IAuthenticationRepository
     {
-        private readonly IConfiguration _configuration;
         private readonly JWTOptions _options;
         private readonly string _connectionString;
 
@@ -21,7 +22,6 @@ namespace Backend_API.Repositories
             IOptionsSnapshot<JWTOptions> options,
             IConfiguration configuration)
         {
-            _configuration = configuration;
             _options = options.Value;
             _connectionString = configuration.GetConnectionString("SQLConnection");
         }
@@ -45,7 +45,7 @@ namespace Backend_API.Repositories
                 if (CheckUserPassword(dto.email,dto.password))
                 {
                     applicationuser user = LoadUser(dto.email);
-                    IList<string> userRoles = GetUserRoles(user.user_id);
+                    IEnumerable<string> userRoles = await GetUserRolesAsync(user.user_id);
                     var authClaims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, user.username),
@@ -91,7 +91,6 @@ namespace Backend_API.Repositories
                     ErrorMessages = new List<string>()
                     {
                         ex.Message,
-                        ex.StackTrace
                     }
                 };
             }
@@ -127,8 +126,8 @@ namespace Backend_API.Repositories
                     group_id = dto.group_id
                 };
 
-                var result = CreateJailedUser(jailedUser);
-                if(result > 1)
+                var result = await CreateJailedUserAsync(jailedUser);
+                if(result > 0)
                 {
                     return new RegistrationResponse
                     {
@@ -162,26 +161,80 @@ namespace Backend_API.Repositories
 
         private bool UserExists(string email)
         {
-            throw new NotImplementedException();
+            using (var connection = new SqlConnection(_connectionString)) {
+                var sql = @"
+                        SELECT CASE WHEN EXISTS(
+                            SELECT * FROM management.applicationuser
+                            WHERE email = @email
+                        )
+                        THEN CAST(1 AS BIT)
+                        ELSE CAST(0 AS BIT) END AS user_exists
+                        ";
+                return connection.QuerySingleOrDefault<bool>(sql, new {email});
+            }
         }
-        private IList<string> GetUserRoles(Guid user_id)
+        private async Task<IEnumerable<string>> GetUserRolesAsync(Guid user_id)
         {
-            throw new NotImplementedException();
+            using (var connection = new SqlConnection(_connectionString)) {
+                var sql = @"
+                        SELECT role_name FROM management.a_user_approle a
+                        LEFT JOIN management.approle b
+                        ON a.role_id = b.role_id
+                        WHERE a.user_id = @user_id
+                        ";
+                return await connection.QueryAsync<string>(sql, new {user_id});
+            }
         }
 
         private applicationuser LoadUser(string email)
         {
-            throw new NotImplementedException();
+            using (var connection = new SqlConnection(_connectionString)) {
+                var sql = @"
+                        SELECT * FROM management.applicationuser
+                        WHERE email = @email
+                        ";
+                return connection.QuerySingleOrDefault<applicationuser>(sql, new {email});
+            }
         }
 
         private bool CheckUserPassword(string email, string password)
         {
-            throw new NotImplementedException();
+            using (var connection = new SqlConnection(_connectionString)) {
+                var sql = @"
+                    SELECT CASE WHEN EXISTS(
+                        SELECT * FROM management.applicationuser
+                        WHERE password = @password AND email = @email
+                    )
+                    THEN CAST(1 AS BIT)
+                    ELSE CAST(0 AS BIT) END
+                        ";
+                return connection.QuerySingleOrDefault<bool>(sql, new {email, password});
+            }
         }
 
-        private int CreateJailedUser(JailedUser jailee)
+        private async Task<int> CreateJailedUserAsync(JailedUser jailee)
         {
-            throw new NotImplementedException();
+            using(var connection = new SqlConnection(_connectionString)) {
+                var (name, _birthdate, _email, _phone, _avatar, _is_student, _faculty_id, _direction_id, _group_id, _grade_id) = jailee;
+                string sql;
+                if (_is_student)
+                {
+                    sql = @"
+                             INSERT INTO management.jaileduser
+                             (username,birthdate,email,phone,avatar,is_student,faculty_id,direction_id,group_id,grade_id)
+                             VALUES (@name,@_birthdate,@_email,@_phone,@_avatar,@_is_student,@_faculty_id,@_direction_id,@_group_id,@_grade_id)
+                            "; 
+                }
+                else
+                {
+                    sql = @"
+                             INSERT INTO management.jaileduser
+                             (username,birthdate,email,phone,avatar,is_student)
+                             VALUES (@name,@_birthdate,@_email,@_phone,@_avatar,@_is_student)
+                            ";
+                }
+                return await connection.ExecuteAsync(sql, new {name, _birthdate, _email, _phone,_avatar,_is_student,_faculty_id,_direction_id,_group_id,_grade_id});
+            }
         }
 
         private JwtSecurityToken GetToken(List<Claim> authClaims)

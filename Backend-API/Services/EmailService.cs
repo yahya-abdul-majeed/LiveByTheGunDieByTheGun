@@ -9,7 +9,6 @@ namespace Backend_API.Services
         //[AutomaticRetry(Attempts = 15)]
         public void SendEmailWithPassword(string email, string password)
         {
-            throw new Exception();
         }
     }
 }
