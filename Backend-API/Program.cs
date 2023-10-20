@@ -87,7 +87,7 @@ if (app.Environment.IsDevelopment())
     app.MapHangfireDashboard("/hangfire");
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();

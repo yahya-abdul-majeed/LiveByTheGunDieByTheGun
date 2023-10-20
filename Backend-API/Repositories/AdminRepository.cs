@@ -2,7 +2,6 @@
 using Backend_API.Models.Responses;
 using Backend_API.Repositories.RepositoryInterfaces;
 using Backend_API.Services.ServiceInterfaces;
-using Microsoft.Data.SqlClient;
 using Hangfire;
 using System.Transactions;
 
@@ -33,9 +32,9 @@ namespace Backend_API.Repositories
                 string password;
                 string jobId;
                 TransactionManager.ImplicitDistributedTransactions = true;
-                using (var transactionScope = new TransactionScope(TransactionScopeOption.Required))
+                using (var transactionScope = new TransactionScope(TransactionScopeOption.Required,TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    (id, password) = CreateUserInDatabase(jailee);
+                    (id, password) = await CreateUserInDatabase(jailee);
                     jobId = SendEmailToUser(jailee.email,password);
                     transactionScope.Complete();
                 }
@@ -73,14 +72,18 @@ namespace Backend_API.Repositories
                 };
             }
         }
-        private (Guid?,string) CreateUserInDatabase(JailedUser jailee)
+        private async Task<(Guid?,string)> CreateUserInDatabase(JailedUser jailee)
         {
+            Guid userId;
             var password = _utilityService.GenerateRandomPassword();
+            jailee.avatar = await _avatarService.GetDefaultAvatar(jailee.user_id);
             if(jailee.is_student)
             {
-                return (_userRepository.CreateStudentUser(jailee,password),password); 
+                userId = _userRepository.CreateStudentUser(jailee,password); 
             }
-            return (_userRepository.CreateTeacherUser(jailee, password), password);
+            userId = _userRepository.CreateTeacherUser(jailee, password);
+            await _userRepository.AssignUserRoleTo(userId);
+            return (userId, password);
 
         }
         private string SendEmailToUser(string email, string password)

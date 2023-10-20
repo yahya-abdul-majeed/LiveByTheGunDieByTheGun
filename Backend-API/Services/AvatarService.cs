@@ -16,7 +16,7 @@ namespace Backend_API.Services
 
         public Task<string> GetCustomAvatar()
         {
-            throw new NotImplementedException();
+            return _avatarClient.GetAvatar(Guid.NewGuid()); //temporary implementation
         }
     }
 }

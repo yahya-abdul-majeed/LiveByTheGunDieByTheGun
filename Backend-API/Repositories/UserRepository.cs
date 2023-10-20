@@ -198,5 +198,39 @@ namespace Backend_API.Repositories
                 return await connection.QueryAsync<ApplicationTeacherDTO>(sql);
             }
         }
+
+        public async Task<int> AssignUserRoleTo(Guid userid)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var sql = @"
+                    DECLARE @roleid UNIQUEIDENTIFIER;
+
+                    SELECT @roleid = role_id FROM management.approle
+                    WHERE role_name = 'User'
+
+                    INSERT INTO management.a_user_approle (role_id,user_id)
+                    VALUES (@roleid,@userid)
+                ";
+                return await connection.ExecuteAsync(sql, new { userid });
+            }
+        }
+
+        public async Task<int> AssignAdminRoleTo(Guid userid)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var sql = @"
+                    DECLARE @roleid UNIQUEIDENTIFIER;
+
+                    SELECT @roleid = role_id FROM management.approle
+                    WHERE role_name = 'Admin'
+
+                    INSERT INTO management.a_user_approle (role_id,user_id)
+                    VALUES (@roleid,@userid)
+                ";
+                return await connection.ExecuteAsync(sql, new { userid });
+            }
+        }
     }
 }

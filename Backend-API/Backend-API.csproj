@@ -7,6 +7,7 @@
     <RootNamespace>Backend_API</RootNamespace>
     <UserSecretsId>6c70bccf-b01e-498f-88d1-dcb77a57b840</UserSecretsId>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
      </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

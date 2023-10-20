@@ -14,6 +14,9 @@ namespace Backend_API.Repositories.RepositoryInterfaces
         Task<IEnumerable<ApplicationStudentDTO >> GetStudentsAsync();
         Task<IEnumerable<ApplicationTeacherDTO >> GetTeachersAsync();
 
+        Task<int> AssignUserRoleTo(Guid userid);
+        Task<int> AssignAdminRoleTo(Guid userid);
+
         ApplicationStudentDTO GetStudent(Guid id);
         ApplicationTeacherDTO GetTeacher(Guid id);
     }
