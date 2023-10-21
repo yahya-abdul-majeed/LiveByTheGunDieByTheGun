@@ -1,4 +1,5 @@
 ﻿using Backend_API.Models;
+using Backend_API.Models.DTO;
 
 namespace Backend_API.Repositories.RepositoryInterfaces
 {
@@ -8,6 +9,7 @@ namespace Backend_API.Repositories.RepositoryInterfaces
         Task<int> UpdateDirectionAsync(Guid id,Direction direction);
         Task<int> DeleteDirectionAsync(Guid id);
         Direction GetDirectionById(Guid id);
+        DirectionDTO GetDirectionWithFacutly(Guid id);
         Task<IEnumerable<Direction>> GetAllDirectionsAsync();
     }
 }

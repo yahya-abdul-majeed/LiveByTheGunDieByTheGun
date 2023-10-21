@@ -11,5 +11,6 @@ namespace Backend_API.Repositories.RepositoryInterfaces
         Group GetGroupById(Guid id);
         Group GetGroupByName(string Name);
         Task<IEnumerable<Group>> GetAllGroupsAsync();
+        Task<IEnumerable<Group>> GetGroupsForDiscipline(Guid discipline_id);
     }
 }

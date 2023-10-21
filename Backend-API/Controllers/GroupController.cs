@@ -173,6 +173,22 @@ namespace Backend_API.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetGroupsForDiscipline/{id}")]
+        public async Task<IActionResult> GetGroupsForDiscipline(Guid id)
+        {
+            var groups = await _groupRepository.GetGroupsForDiscipline(id);
+            return Ok(new APIResponse
+            {
+                IsSuccess = true,
+                StatusCode = HttpStatusCode.OK,
+                Result = new
+                {
+                    groups
+                }
+            });
+        }
+
 
     }
 }

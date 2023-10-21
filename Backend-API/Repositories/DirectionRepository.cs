@@ -1,4 +1,5 @@
 ﻿using Backend_API.Models;
+using Backend_API.Models.DTO;
 using Backend_API.Repositories.RepositoryInterfaces;
 using Dapper;
 using Microsoft.Data.SqlClient;
@@ -48,6 +49,19 @@ namespace Backend_API.Repositories
             {
                 var sql = @"SELECT * FROM management.direction WHERE direction_id = @id";
                 return connection.QuerySingleOrDefault<Direction>(sql,new {id});
+            }
+        }
+
+        public DirectionDTO GetDirectionWithFacutly(Guid id)
+        {
+            using(var connection = new SqlConnection(_connectionString))
+            {
+                var sql = @"
+                    SELECT a.direction_id,a.direction_name, b.faculty_name,b.faculty_id FROM management.direction a
+                    LEFT OUTER JOIN management.faculty b ON a.faculty_id = b.faculty_id
+                    WHERE a.direction_id = @id
+                        ";
+                return connection.QuerySingleOrDefault<DirectionDTO>(sql,new {id});
             }
         }
 

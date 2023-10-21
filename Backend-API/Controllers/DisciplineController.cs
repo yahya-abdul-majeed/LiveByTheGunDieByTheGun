@@ -78,6 +78,36 @@ namespace Backend_API.Controllers
                 }
             });
         }
+        [HttpGet]
+        [Route("GetDisciplinesForTeacher/{id}")]
+        public async Task<IActionResult> GetDisciplinesForTeacher(Guid id)
+        {
+            var disciplines = await _disciplineRepository.GetAllDisciplinesForTeacherAsync(id);
+            return Ok(new APIResponse
+            {
+                IsSuccess = true,
+                StatusCode = HttpStatusCode.OK,
+                Result = new
+                {
+                    disciplines
+                }
+            });
+        }
+        [HttpGet]
+        [Route("GetTeachersForDiscipline/{id}")]
+        public async Task<IActionResult> GetTeachersForDiscipline(Guid id)
+        {
+            var teachers = await _disciplineRepository.GetAllTeachersForDisciplineAsync(id);
+            return Ok(new APIResponse
+            {
+                IsSuccess = true,
+                StatusCode = HttpStatusCode.OK,
+                Result = new
+                {
+                   teachers 
+                }
+            });
+        }
 
         [HttpGet]
         [Route("GetDiscipline/{id}")]

@@ -92,6 +92,22 @@ namespace Backend_API.Controllers
             });
 
         }
+        [HttpGet]
+        [Route("GetDirectionWithFaculty/{id}")]
+        public IActionResult GetDirectionWithFaculty(Guid id)
+        {
+            var direction = _directionRepository.GetDirectionWithFacutly(id);
+            return Ok(new APIResponse
+            {
+                IsSuccess = true,
+                StatusCode = HttpStatusCode.OK,
+                Result = new
+                {
+                    direction
+                }
+            });
+
+        }
 
 
         [HttpPut]

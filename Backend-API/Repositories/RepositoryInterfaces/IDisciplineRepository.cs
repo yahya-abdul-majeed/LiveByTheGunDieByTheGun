@@ -1,4 +1,5 @@
 ﻿using Backend_API.Models;
+using Backend_API.Models.DTO;
 
 namespace Backend_API.Repositories.RepositoryInterfaces
 {
@@ -9,6 +10,8 @@ namespace Backend_API.Repositories.RepositoryInterfaces
         Task<int> DeleteDisciplineAsync(Guid id);
         Discipline GetDisciplineById(Guid id);
         Task<IEnumerable<Discipline>> GetAllDisciplinesAsync();
+        Task<IEnumerable<Discipline>> GetAllDisciplinesForTeacherAsync(Guid userid);
+        Task<IEnumerable<ApplicationTeacherDTO>> GetAllTeachersForDisciplineAsync(Guid discipline_id);
 
     }
 }

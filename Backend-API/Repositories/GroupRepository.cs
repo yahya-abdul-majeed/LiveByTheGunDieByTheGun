@@ -74,6 +74,20 @@ namespace Backend_API.Repositories
             }
         }
 
+        public async Task<IEnumerable<Group>> GetGroupsForDiscipline(Guid discipline_id)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var sql = @"
+                   SELECT b.group_id,b.group_name, c.direction_name FROM management.a_discipline_group a
+                    LEFT OUTER JOIN management.student_group b ON a.group_id = b.group_id
+                    LEFT OUTER JOIN management.direction c ON b.direction_id = c.direction_id 
+                    WHERE a.discipline_id = @discipline_id
+                        ";
+                return await connection.QueryAsync<Group>(sql,new {discipline_id});
+            }
+        }
+
         public async Task<int> UpdateGroupAsync(Guid id, Group group)
         {
             using (var connection = new SqlConnection(_connectionString))
