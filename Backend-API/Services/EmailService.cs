@@ -10,5 +10,9 @@ namespace Backend_API.Services
         public void SendEmailWithPassword(string email, string password)
         {
         }
+
+        public void SendResetPasswordEmail(string email, string link)
+        {
+        }
     }
 }

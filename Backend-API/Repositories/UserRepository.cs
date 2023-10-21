@@ -1,18 +1,22 @@
 ﻿using Backend_API.Models;
 using Backend_API.Models.DTO;
 using Backend_API.Repositories.RepositoryInterfaces;
+using Backend_API.Services.ServiceInterfaces;
 using Dapper;
 using Microsoft.Data.SqlClient;
+using System.Security.Cryptography;
 
 namespace Backend_API.Repositories
 {
     public class UserRepository : IUserRepository
     {
         private readonly string _connectionString;
+        private readonly IEmailService _emailService;
 
-        public UserRepository(IConfiguration config)
+        public UserRepository(IConfiguration config, IEmailService emailService)
         {
             _connectionString = config.GetConnectionString("SQLConnection");
+            _emailService = emailService;
         }
 
         public Guid CreateTeacherUser(JailedUser jailee, string _password)
@@ -231,6 +235,62 @@ namespace Backend_API.Repositories
                 ";
                 return await connection.ExecuteAsync(sql, new { userid });
             }
+        }
+
+        public async Task<int> SetUserPassword(string email, string password, byte[] token)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var sql = @"
+                         DECLARE @currenttime DATETIME;
+                         SET @currenttime = GETDATE()
+                         SELECT CASE WHEN EXISTS(
+                            SELECT * FROM management.resetticket
+                            WHERE email = @email AND tokenhash = @token
+                            AND used = 0 AND (@currenttime < expires)
+                         )
+                         THEN CAST(1 AS BIT)
+                         ELSE CAST(0 AS BIT) END;
+                        ";
+                var result = connection.QuerySingleOrDefault<bool>(sql, new { email, token });
+                if (result)
+                {
+                    sql = @"
+                            UPDATE management.applicationuser SET password = @password
+                            WHERE email = @email
+
+                            UPDATE management.resetticket SET used = 1
+                            WHERE email = @email AND tokenhash = @token
+                            AND used = 0
+
+                            ";
+                    return await connection.ExecuteAsync(sql, new { email, password, token });
+                }
+                return 0;
+            }
+        }
+
+        public async Task<byte[]> SendChangePasswordEmail(string email,string link)
+        {
+            byte[] token = new byte[16];
+            RNGCryptoServiceProvider rngCsp = new();
+            rngCsp.GetBytes(token);
+
+            var expires = DateTime.Now.AddMinutes(15);
+            var used = false;
+            using(var connection = new SqlConnection(_connectionString))
+            {
+                var sql = @"
+                        INSERT INTO management.resetticket (email, tokenhash, expires, used)
+                        VALUES(@email,@token,@expires,@used)
+                        ";
+                await connection.ExecuteAsync(sql, new {email,expires,used,token}); 
+            }
+
+            var redirectTo = link + "?token=" + token;
+            _emailService.SendResetPasswordEmail(email, redirectTo);
+
+            return token;
         }
     }
 }

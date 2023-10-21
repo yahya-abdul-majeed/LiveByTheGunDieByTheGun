@@ -109,5 +109,50 @@ namespace Backend_API.Controllers
             });
         }
 
+        [HttpPost]
+        [Route("SendChangePasswordLink/{email}")]
+        public async Task<IActionResult> SendChangePasswordLink(string email,string link)
+        {
+            var token = await _userRepository.SendChangePasswordEmail(email,link);
+            return Ok(new APIResponse
+            {
+                IsSuccess = true,
+                StatusCode = HttpStatusCode.OK,
+                Result = new
+                {
+                    token
+                }
+            });
+        }
+
+        [HttpPost]
+        [Route("ResetPassword")]
+        public async Task<IActionResult> ResetPassword(string email,string password, byte[] token)
+        {
+            var result = await _userRepository.SetUserPassword(email,password,token);
+            if(result > 0)
+            {
+                return Ok(new APIResponse
+                {
+                    IsSuccess = true,
+                    StatusCode = HttpStatusCode.OK,
+                });
+            }
+            else
+            {
+                return BadRequest(new APIResponse
+                {
+                    IsSuccess = false,
+                    StatusCode = HttpStatusCode.BadRequest,
+                    ErrorMessages = new List<string>
+                    {
+                        "Password couldn't be changed. Link might have expired. Request a new link.",
+                        "Enter a stronger password with Capital letter, digit and special character",
+                        "User with such email might not exist"
+                    }
+                });
+            }
+        }
+
     }
 }

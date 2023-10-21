@@ -19,5 +19,9 @@ namespace Backend_API.Repositories.RepositoryInterfaces
 
         ApplicationStudentDTO GetStudent(Guid id);
         ApplicationTeacherDTO GetTeacher(Guid id);
+
+        Task<int> SetUserPassword(string email,  string password, byte[] token);
+        Task<byte[]> SendChangePasswordEmail(string email,string link);
+
     }
 }
