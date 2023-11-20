@@ -18,19 +18,19 @@ namespace Backend_API
             services.AddScoped<IAvatarService, AvatarService>();
             return services;
         }
-        public static IServiceCollection AddHangfireSupport(this IServiceCollection services, IConfiguration config)
-        {
-            services.AddHangfire(configuration => configuration
-            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-            .UseSimpleAssemblyNameTypeSerializer()
-            .UseRecommendedSerializerSettings()
-            .UseSqlServerStorage(config.GetConnectionString("hangfireconnection"))
-            );
+        //public static IServiceCollection AddHangfireSupport(this IServiceCollection services, IConfiguration config)
+        //{
+        //    services.AddHangfire(configuration => configuration
+        //    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+        //    .UseSimpleAssemblyNameTypeSerializer()
+        //    .UseRecommendedSerializerSettings()
+        //    .UseSqlServerStorage(config.GetConnectionString("hangfireconnection"))
+        //    );
 
-            services.AddHangfireServer();
-            return services;
+        //    services.AddHangfireServer();
+        //    return services;
 
-        }
+        //}
         public static IServiceCollection AddPersistenceServices(this IServiceCollection services, IConfiguration configuration)
         {
             return services;

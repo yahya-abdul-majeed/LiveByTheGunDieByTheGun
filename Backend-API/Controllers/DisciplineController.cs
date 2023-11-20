@@ -17,6 +17,30 @@ namespace Backend_API.Controllers
         }
 
         [HttpPost]
+        [Route("AssignDisciplineToTeacher")]
+        public async Task<IActionResult> AssignDisciplineToTeacher(Guid discipline_id, Guid teacher_id)
+        {
+            var result = await _disciplineRepository.AssignDisciplineToTeacher(discipline_id,teacher_id);
+            if(result > 0)
+            {
+                return Ok(new APIResponse { 
+                    IsSuccess = true,
+                    StatusCode = HttpStatusCode.OK,
+                });
+            }
+            return BadRequest(new APIResponse
+            {
+                IsSuccess = false,
+                StatusCode = HttpStatusCode.BadRequest,
+                ErrorMessages = new List<string>
+                {
+                    "Assignation failed"
+                }
+            });
+
+        }
+
+        [HttpPost]
         [Route("CreateDiscipline")]
         public async Task<IActionResult> CreateDiscipline(Discipline discipline)
         {

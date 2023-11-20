@@ -31,7 +31,7 @@ builder.Services.AddControllers()
 builder.Services.AddCustomServices();
 builder.Services.AddRepositoryServices();
 builder.Services.AddJWTSupport(builder.Configuration);
-builder.Services.AddHangfireSupport(builder.Configuration);
+//builder.Services.AddHangfireSupport(builder.Configuration);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -83,11 +83,11 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.UseHangfireDashboard();
-    app.MapHangfireDashboard("/hangfire");
+    //app.UseHangfireDashboard();
+    //app.MapHangfireDashboard("/hangfire");
 }
 
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();

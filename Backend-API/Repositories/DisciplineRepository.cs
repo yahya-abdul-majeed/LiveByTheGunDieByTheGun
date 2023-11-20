@@ -14,6 +14,17 @@ namespace Backend_API.Repositories
         {
             _connectionString = config.GetConnectionString("SQLConnection");
         }
+
+        public async Task<int> AssignDisciplineToTeacher(Guid discipline_id, Guid teacher_id)
+        {
+            using(var connection = new SqlConnection(_connectionString))
+            {
+                var sql = @"INSERT INTO management.discipline_teacher(discipline_id,teacher_id)
+                            VALUES(@discipline_id,@teacher_id)";
+                return await connection.ExecuteAsync(sql, new {discipline_id,teacher_id}).ConfigureAwait(false);    
+            }
+        }
+
         public async Task<int> CreateDisciplineAsync(Discipline discipline)
         {
             using(var connection = new SqlConnection(_connectionString))

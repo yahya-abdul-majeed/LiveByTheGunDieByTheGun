@@ -12,6 +12,7 @@ namespace Backend_API.Repositories.RepositoryInterfaces
         Task<IEnumerable<Discipline>> GetAllDisciplinesAsync();
         Task<IEnumerable<Discipline>> GetAllDisciplinesForTeacherAsync(Guid userid);
         Task<IEnumerable<ApplicationTeacherDTO>> GetAllTeachersForDisciplineAsync(Guid discipline_id);
+        Task<int> AssignDisciplineToTeacher(Guid discipline_id, Guid teacher_id);
 
     }
 }
